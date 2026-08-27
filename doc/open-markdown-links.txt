@@ -1,0 +1,72 @@
+*open-markdown-links.txt*  Open the markdown link under the cursor in a browser
+
+==============================================================================
+CONTENTS                                          *open-markdown-links-contents*
+
+  1. Introduction ............ |open-markdown-links-introduction|
+  2. Requirements ............ |open-markdown-links-requirements|
+  3. Usage ................... |open-markdown-links-usage|
+  4. Mappings ................ |open-markdown-links-mappings|
+  5. How links are resolved .. |open-markdown-links-resolution|
+
+==============================================================================
+1. Introduction                              *open-markdown-links-introduction*
+
+open-markdown-links.vim opens the URL of the markdown link under the cursor in
+your browser. It understands markdown link syntax, so with the cursor anywhere
+on `[label](https://example.com)` it opens `https://example.com` rather than
+whatever bare word happens to sit under the cursor.
+
+The actual browser launch is delegated to open-browser.vim.
+
+==============================================================================
+2. Requirements                              *open-markdown-links-requirements*
+
+- Vim 8.0.1630 or later (uses |trim()|).
+- tyru/open-browser.vim: https://github.com/tyru/open-browser.vim
+
+==============================================================================
+3. Usage                                            *open-markdown-links-usage*
+
+Place the cursor on a markdown link and run:            *:OpenMarkdownLink*
+>
+    :OpenMarkdownLink
+<
+The cursor may be anywhere on the link — on the label or on the URL.
+
+==============================================================================
+4. Mappings                                      *open-markdown-links-mappings*
+
+No key is mapped by default. A |<Plug>| mapping is provided:
+
+                                            *<Plug>(open-markdown-link)*
+Bind it to a key in your vimrc, for example: >
+
+    nmap gx <Plug>(open-markdown-link)
+<
+To enable it only in markdown buffers: >
+
+    autocmd FileType markdown
+        \ nmap <buffer> gx <Plug>(open-markdown-link)
+<
+==============================================================================
+5. How links are resolved                      *open-markdown-links-resolution*
+
+When run, the plugin resolves, in order:
+
+1. Inline links `[label](url)` whose span contains the cursor. An optional
+   title is stripped: `[x](url "title")` opens `url`. Parentheses inside the
+   URL are handled when balanced, e.g.
+   `[Vim](https://en.wikipedia.org/wiki/Vim_(text_editor))`. Angle-bracket
+   destinations `[x](<url with spaces>)` are supported, as are square brackets
+   in the URL (e.g. IPv6 `http://[::1]:8080/`).
+
+2. Reference links under the cursor — full `[label][ref]`, collapsed
+   `[label][]`, and shortcut `[label]` — resolved against a matching
+   `[ref]: url` definition anywhere in the buffer (case-insensitive).
+
+3. If the cursor is not on a markdown link, it falls back to
+   `<Plug>(openbrowser-open)` from open-browser.vim, which handles bare URLs
+   and smart-search under the cursor.
+
+ vim:tw=78:ts=8:ft=help:norl:
